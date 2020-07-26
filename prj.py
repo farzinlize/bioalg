@@ -1,6 +1,27 @@
 from getopt import getopt
 import sys
 
+DATA_FLU = ['./Influenza/AB470663.fasta']
+DATA_MIT = ['./mitochondrial/AF010406_Sheep.fasta']
+
+def read_sequence(sequence_type='FLU', data_index=0):
+    sequence = ''
+
+    if sequence_type == 'FLU':        
+        dataset_filename = DATA_FLU[data_index]
+    elif sequence_type == 'MIT':
+        dataset_filename = DATA_MIT[data_index]
+
+    with open(dataset_filename, 'r') as fasta:
+
+        # ommit first line
+        fasta.readline()
+
+        for line in fasta:
+            sequence += line.replace('\n', '')
+
+    return sequence
+
 
 def generates_blocks(sequence, block_size, overlap, fasta_filename='blocks.fasta'):
     report = '> block size\n%d\n> overlap\n%d\n'%(block_size, overlap)
@@ -11,6 +32,8 @@ def generates_blocks(sequence, block_size, overlap, fasta_filename='blocks.fasta
             report += '> block_%d\n%s\n'%(block_index, block)
             block_index += 1
             block = block[-overlap:]
+            if overlap == 0:
+                block = ''
         else:
             block = block + nucleotide
     if len(block) != 0:
@@ -23,24 +46,21 @@ def generates_blocks(sequence, block_size, overlap, fasta_filename='blocks.fasta
     fasta = open(fasta_filename, 'w')
     fasta.write(report)
     fasta.close
-        
 
-def test_one():
-    s_file = open('dm01g.fasta', 'r')
-    seq = s_file.readline()
-    s_file.close()
-    
-    generates_blocks(seq, 200, 10)
 
+########################################
+#            main call                 #
+########################################
 
 if __name__ == "__main__":
     if len(sys.argv) == 1:
         raise Exception('request command must be specified (read the description for supported commands)')
 
-    shortopt = 'b:o:f:'
-    longopts = ['block-size=', 'overlap=', 'filename=']
+    shortopt = 'b:o:f:s:c:'
+    longopts = ['block-size=', 'overlap=', 'filename=', 'sequence-index=', 'category=']
 
-    arg_dics = {}
+    # default arguments
+    arg_dics = {'block-size':100 , 'overlap':0, 'filename':'default.out', 'sequence-index':0, 'category':'FLU'}
 
     command = sys.argv[1]
 
@@ -52,12 +72,10 @@ if __name__ == "__main__":
             arg_dics.update({'overlap':int(a)})
         elif o in ['-f', '--filename']:
             arg_dics.update({'filename':a})
+        elif o in ['-s', '--sequence-index']:
+            arg_dics.update({'sequence-index':int(a)})
+        elif o in ['-c', '--category']:
+            arg_dics.update({'filename':a})
     
     if command == 'BLK':
-
-        # test file TODO: remove this part after implementing standard reading sequences
-        s_file = open('dm01g.fasta', 'r')
-        seq = s_file.readline()
-        s_file.close()
-
-        generates_blocks(_, arg_dics['block-size'], arg_dics['overlap'], arg_dics['filename'])
+        generates_blocks(read_sequence(arg_dics['category'], arg_dics['sequence-index']), arg_dics['block-size'], arg_dics['overlap'], arg_dics['filename'])
