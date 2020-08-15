@@ -26,5 +26,11 @@ commands:
         --other-target or -h: address of a fasta file contains blocks of second sequence
         -k: kmer size
         --filename or -f: result file name (contains the distance matrix)
+- CMP-Z -> comparing all sequences in same dataset (influenza and mitochondrial) - will generate a file with a matrix
+    options:
+        --category or -c: FLU for Influenza or MIT for mitochondrial
+        -k: kmer size
+        --filename or -f: result file name (contains the distance matrix)
+
 
 all options have default values (check source code)
