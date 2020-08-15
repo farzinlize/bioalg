@@ -69,7 +69,7 @@ class TrieNode:
     def scale_8bit(self, max_min_value):
         if hasattr(self, 'count'):
             return int( ( (self.count - max_min_value[1]) / (max_min_value[0] - max_min_value[1]) ) * 255 )
-        return 0
+        return -1
 
     
     def report(self, max_min_value):
