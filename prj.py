@@ -127,7 +127,17 @@ def distance_manhattan(sequence_1, sequence_2, k):
 
     diffs = tree_1.measure_diff(tree_2, ma_diff)
     return reduce(lambda a,b:a+b, diffs + [count/allkmers_2 for count in tree_2.extract_counts()])
-    
+
+
+def block_distance_matrix(blocks_1, blocks_2, k, report_filename):
+    # matrix = [[distance_manhattan(blocks_1, blocks_2) for block_2 in blocks_2] for block_1 in blocks_1]
+    with open(report_filename, 'w') as report:
+        for block_1 in blocks_1:
+            for block_2 in blocks_2:
+                d = distance_manhattan(block_1, block_2, k)
+                report.write('%.6f   '%d)
+            report.write('\n')
+
 
 ########################################
 #            main call                 #
@@ -137,12 +147,14 @@ if __name__ == "__main__":
     if len(sys.argv) == 1:
         raise Exception('request command must be specified (read the description for supported commands)')
 
-    shortopt = 'b:o:f:s:c:k:t:n:'
-    longopts = ['block-size=', 'overlap=', 'filename=', 'sequence-index=', 'category=', 'block-target=', 'other-index=']
+    shortopt = 'b:o:f:s:c:k:t:n:h:'
+    longopts = ['block-size=', 'overlap=', 'filename=', 'sequence-index=', 
+            'category=', 'block-target=', 'other-index=', 'other-target=']
 
     # default arguments
     arg_dics = {'block-size':100 , 'overlap':0, 'filename':'default.out', 'k':5,
-            'sequence-index':0, 'category':'FLU', 'block-target':'default.out', 'other-index':0}
+            'sequence-index':0, 'category':'FLU', 'block-target':'default.out', 
+            'other-index':0, 'other-target':'default.out'}
 
     command = sys.argv[1]
 
@@ -164,13 +176,27 @@ if __name__ == "__main__":
             arg_dics.update({'k':int(a)})
         elif o in ['-n', '--other-index']:
             arg_dics.update({'other-index':int(a)})
+        elif o in ['-h', '--other-target']:
+            arg_dics.update({'other-target':a})
     
     if command == 'BLK':
-        generates_blocks(read_sequence(arg_dics['category'], arg_dics['sequence-index']), arg_dics['block-size'], arg_dics['overlap'], arg_dics['filename'])
+        generates_blocks(
+            read_sequence(arg_dics['category'], arg_dics['sequence-index']), 
+            arg_dics['block-size'], 
+            arg_dics['overlap'], 
+            arg_dics['filename'])
     elif command == 'CNT':
         tree = count_kmer_blocks(read_blocks(arg_dics['block-target']), arg_dics['k'])
         report_count(tree, arg_dics['filename'])
     elif command == 'CMP':
-        print('manhattan distance of sequences -> %f'%(
-            distance_manhattan(read_sequence(arg_dics['category'], arg_dics['sequence-index']), 
-            read_sequence(arg_dics['category'], arg_dics['other-index']), arg_dics['k'])))
+        print('manhattan distance of sequences -> %f'%(distance_manhattan(
+            read_sequence(arg_dics['category'], arg_dics['sequence-index']), 
+            read_sequence(arg_dics['category'], arg_dics['other-index']), 
+            arg_dics['k'])))
+    elif command == 'CMP-B':
+        block_distance_matrix(
+            read_blocks(arg_dics['block-target']), 
+            read_blocks(arg_dics['other-target']),
+            arg_dics['k'], 
+            arg_dics['filename']
+        )

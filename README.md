@@ -20,5 +20,11 @@ commands:
         --sequence-index or -s: file index of first sequence for comparing in dataset
         --other-index or -n: file index of second sequence in dataset
         -k: kmer size
+- CMP-B -> comparing blocks of two sequences: will generate a file containing a distance matrix
+    options:
+        --block-target or -t: address of a fasta file contains blocks of first sequence
+        --other-target or -h: address of a fasta file contains blocks of second sequence
+        -k: kmer size
+        --filename or -f: result file name (contains the distance matrix)
 
 all options have default values (check source code)
