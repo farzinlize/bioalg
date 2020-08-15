@@ -1,5 +1,7 @@
 from TrieFind import TrieNode
 
+from deprecated import deprecated
+from functools import reduce
 from getopt import getopt
 import sys
 
@@ -83,8 +85,8 @@ def read_blocks(filename):
     
     return blocks
 
-
-def count_kmer(blocks, k):
+@deprecated('related to phase #2 of project')
+def count_kmer_blocks(blocks, k):
     tree = TrieNode()
     for block in blocks:
         kmer_start = 0
@@ -97,9 +99,34 @@ def count_kmer(blocks, k):
     return tree
 
 
+def count_kmer(sequence, k):
+    tree = TrieNode()
+    kmer_start = 0
+    kmer_end = k
+    while kmer_end < len(sequence):
+        kmer = sequence[kmer_start:kmer_end]
+        tree.add_frame(kmer)
+        kmer_start += 1
+        kmer_end +=1
+    return tree
+
+
 def report_count(tree, fasta_filename='kmers.fasta'):
     with open(fasta_filename, 'w') as fasta:
         fasta.write(tree.report(tree.max_min_count()))
+    
+
+def distance_manhattan(sequence_1, sequence_2, k):
+    tree_1 = count_kmer(sequence_1, k)
+    tree_2 = count_kmer(sequence_2, k)
+    
+    allkmers_1 = len(sequence_1)-k+1
+    allkmers_2 = len(sequence_2)-k+1
+
+    ma_diff = lambda count_1, count_2: abs((count_1/allkmers_1)-(count_2/allkmers_2))
+
+    diffs = tree_1.measure_diff(tree_2, ma_diff)
+    return reduce(lambda a,b:a+b, diffs + [count/allkmers_2 for count in tree_2.extract_counts()])
     
 
 ########################################
@@ -110,12 +137,12 @@ if __name__ == "__main__":
     if len(sys.argv) == 1:
         raise Exception('request command must be specified (read the description for supported commands)')
 
-    shortopt = 'b:o:f:s:c:k:t:'
-    longopts = ['block-size=', 'overlap=', 'filename=', 'sequence-index=', 'category=', 'block-target=']
+    shortopt = 'b:o:f:s:c:k:t:n:'
+    longopts = ['block-size=', 'overlap=', 'filename=', 'sequence-index=', 'category=', 'block-target=', 'other-index=']
 
     # default arguments
     arg_dics = {'block-size':100 , 'overlap':0, 'filename':'default.out', 'k':5,
-            'sequence-index':0, 'category':'FLU', 'block-target':'default.out'}
+            'sequence-index':0, 'category':'FLU', 'block-target':'default.out', 'other-index':0}
 
     command = sys.argv[1]
 
@@ -135,9 +162,15 @@ if __name__ == "__main__":
             arg_dics.update({'block-target':a})
         elif o == '-k':
             arg_dics.update({'k':int(a)})
+        elif o in ['-n', '--other-index']:
+            arg_dics.update({'other-index':int(a)})
     
     if command == 'BLK':
         generates_blocks(read_sequence(arg_dics['category'], arg_dics['sequence-index']), arg_dics['block-size'], arg_dics['overlap'], arg_dics['filename'])
     elif command == 'CNT':
-        tree = count_kmer(read_blocks(arg_dics['block-target']), arg_dics['k'])
+        tree = count_kmer_blocks(read_blocks(arg_dics['block-target']), arg_dics['k'])
         report_count(tree, arg_dics['filename'])
+    elif command == 'CMP':
+        print('manhattan distance of sequences -> %f'%(
+            distance_manhattan(read_sequence(arg_dics['category'], arg_dics['sequence-index']), 
+            read_sequence(arg_dics['category'], arg_dics['other-index']), arg_dics['k'])))

@@ -1,3 +1,5 @@
+from functools import reduce
+
 class TrieNode:
     def __init__(self, lable='', level=0):
         self.label = lable
@@ -82,3 +84,31 @@ class TrieNode:
             report += child.report(max_min_value)
 
         return report
+
+    
+    def measure_diff(self, other, f):
+        diffs = []
+
+        if hasattr(self, 'count'):
+            other_node = other.find(self.label)
+            if other_node == None:
+                other_count = 0
+            elif hasattr(other_node, 'count'):
+                other_count = other_node.count
+                delattr(other_node, 'count')
+            else:
+                other_count = 0
+
+            diffs += [f(self.count, other_count)]
+
+        for child in self.childs:
+            diffs += child.measure_diff(other, f)
+
+        return diffs
+
+    
+    def extract_counts(self):
+        counts = []
+        if hasattr(self, 'count'):
+            counts += [self.count]
+        return counts + reduce(lambda a,b:a+b, [child.extract_counts() for child in self.childs], [])
