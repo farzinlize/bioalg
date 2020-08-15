@@ -2,3 +2,5 @@ trash/*
 /__pycache__/
 *.out
 *.zip
+A.fasta
+B.fasta
