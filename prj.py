@@ -3,16 +3,36 @@ from TrieFind import TrieNode
 from getopt import getopt
 import sys
 
-DATA_FLU = ['./Influenza/AB470663.fasta']
-DATA_MIT = ['./mitochondrial/AF010406_Sheep.fasta']
+# dataset file addresses
+DATA_FLU = ['AB470663.fasta', 'AB546159.fasta', 'AB684161.fasta', 'AF509102.fasta', 'AM157358.fasta', 
+    'AM914017.fasta', 'AY646080.fasta', 'CY005540.fasta', 'CY014788.fasta', 'CY039321.fasta', 
+    'CY076231.fasta', 'CY129336.fasta', 'CY138562.fasta', 'CY140047.fasta', 'CY149630.fasta', 
+    'CY186004.fasta', 'DQ017487.fasta', 'EF541464.fasta', 'EU026046.fasta', 'EU500854.fasta', 
+    'EU635875.fasta', 'FJ357114.fasta', 'FM177121.fasta', 'GQ411894.fasta', 'GU186511.fasta', 
+    'HM370969.fasta', 'HQ185381.fasta', 'HQ185383.fasta', 'HQ897966.fasta', 'JF699677.fasta', 
+    'JX081142.fasta', 'KC608160.fasta', 'KC609801.fasta', 'KF259688.fasta', 'KF259734.fasta', 
+    'KF572435.fasta', 'KF938945.fasta', 'KM244078.fasta']
 
+DATA_MIT = ['AF010406_Sheep.fasta', 'AF303110_Brown_Bear.fasta', 'AF303111_Polar_Bear.fasta', 
+    'AF533441_Goat.fasta', 'AJ001562_Dormouse.fasta', 'AJ001588_Rabbit.fasta', 'AJ002189_Pig.fasta', 
+    'AJ238588_Squirrel.fasta', 'AY488491_Buffalo.fasta', 'AY863426_Ver_Monkey.fasta', 'D38113_Com_Chim.fasta', 
+    'D38114_Gorilla.fasta', 'D38115_Bor_Oran.fasta', 'D38116_Pig_Chim.fasta', 'DQ402478_Black_Bear.fasta', 
+    'EF212882_Giant_panda.fasta', 'EF551002_Leopard.fasta', 'EF551003_Tiger.fasta', 'EU442884_Wolf.fasta', 
+    'NC_001321_Fin_Whale.fasta', 'NC_001640_horse.fasta', 'NC_001788_donkey.fasta', 'NC_002083_Sum_Oran.fasta', 
+    'NC_002764_Macaca_Thibet.fasta', 'NC_005268_Bowhead_Whale.fasta', 'NC_005270_Gray_Whale.fasta', 
+    'NC_005275_Indus_river_dolphin.fasta', 'NC_006931_North_pacific_whale.fasta', 'NC_007441_Chiru.fasta', 
+    'NC_008830_Common_warthog.fasta', 'NC_010640_Taiwan_serow.fasta', 'U20753_Cat.fasta', 'U96639_Dog.fasta', 
+    'V00654_Cow.fasta', 'V00662_Human.fasta', 'X72204_Blue_Whale.fasta', 'X88898_Hedgehog.fasta', 
+    'X97336_Indian_Rhino.fasta', 'X99256_Gibbon.fasta', 'Y07726_White_Rhino.fasta', 'Y18001_Baboon.fasta']
+
+# extract sequence
 def read_sequence(sequence_type='FLU', data_index=0):
     sequence = ''
 
     if sequence_type == 'FLU':        
-        dataset_filename = DATA_FLU[data_index]
+        dataset_filename = './Influenza/' + DATA_FLU[data_index]
     elif sequence_type == 'MIT':
-        dataset_filename = DATA_MIT[data_index]
+        dataset_filename = './mitochondrial/' + DATA_MIT[data_index]
 
     with open(dataset_filename, 'r') as fasta:
 
